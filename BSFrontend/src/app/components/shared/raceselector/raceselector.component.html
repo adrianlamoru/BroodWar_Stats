@@ -1,0 +1,5 @@
+<select class="form-select" aria-label="Default select example">
+  <option *ngFor="let race of _getListRacesDto" [value]="race.raceID">
+    {{ race.name }}
+  </option>
+</select>
