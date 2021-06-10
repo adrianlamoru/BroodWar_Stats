@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BS.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CountryController : ControllerBase
     {
         private readonly ICountryService _countryService;
@@ -14,7 +14,6 @@ namespace BS.Controllers
         public CountryController(ICountryService countryService)
         {
             _countryService = countryService;
-
         }
 
         [HttpGet("GetAll")]
@@ -22,8 +21,5 @@ namespace BS.Controllers
         {
             return Ok(await _countryService.GetAll());
         }
-
-        
-
     }
 }

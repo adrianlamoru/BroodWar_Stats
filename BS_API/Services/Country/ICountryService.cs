@@ -7,10 +7,9 @@ using BS.Services;
 namespace BS.Services
 {
     public interface ICountryService
-    {       
+    {
         Task<ServiceResponse<GetCountryDto>> GetCountryById(GetCountryByIdDto id);
 
         Task<ServiceResponse<GetListCountryDto>> GetAll();
-         
     }
 }

@@ -12,10 +12,9 @@ namespace BS.Services
 {
     public class RaceService : IRaceService
     {
-        
-        private BSContext _context;
+        private readonly BSContext _context;
         private readonly IMapper _mapper;
-        
+
         public RaceService(IMapper mapper, BSContext context)
         {
             _mapper = mapper;
@@ -25,25 +24,20 @@ namespace BS.Services
         public async Task<ServiceResponse<GetListRaceDto>> GetAll()
         {
             ServiceResponse<GetListRaceDto> serviceResponse = new ServiceResponse<GetListRaceDto>();
-            
-            try{
-                
+
+            try
+            {
                 List<Race> raceList = await _context.Race.ToListAsync();
-                GetListRaceDto  getListRaceDto   = new  GetListRaceDto();
-                getListRaceDto.getRacesDtos =   raceList.Select(c => _mapper.Map<GetRaceDto>(c)).ToArray();
+                GetListRaceDto getListRaceDto = new GetListRaceDto();
+                getListRaceDto.getRacesDtos = raceList.Select(c => _mapper.Map<GetRaceDto>(c)).ToArray();
                 serviceResponse.Data = getListRaceDto;
-                
-                }
-            
-            catch(Exception ex){
-               serviceResponse.Message = ex.Message;
-               serviceResponse.Success = false;
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.Message = ex.Message;
+                serviceResponse.Success = false;
             }
             return serviceResponse;
         }
-
-       
-
-       
     }
 }

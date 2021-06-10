@@ -8,11 +8,11 @@ using BS.Services;
 namespace BS.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class AuthController:ControllerBase
+    [Route("api/[controller]")]
+    public class AuthController : ControllerBase
     {
         private readonly IAuthRepository _authService;
-        public AuthController(IAuthRepository authService )
+        public AuthController(IAuthRepository authService)
         {
             _authService = authService;
         }
@@ -21,10 +21,11 @@ namespace BS.Controllers
         public async Task<IActionResult> Register(UserRegisterDto request)
         {
             ServiceResponse<int> response = await _authService.
-            Register(new User{UserName = request.UserName}, request.Password = request.Password);
-            if (!response.Success){
+            Register(new User { UserName = request.UserName }, request.Password = request.Password);
+            if (!response.Success)
+            {
                 return BadRequest(response);
-            } 
+            }
             return Ok(response);
         }
 
@@ -33,11 +34,11 @@ namespace BS.Controllers
         {
             ServiceResponse<string> response = await _authService.
             Login(request.UserName, request.Password);
-            if (!response.Success){
+            if (!response.Success)
+            {
                 return BadRequest(response);
-            } 
+            }
             return Ok(response);
         }
-
     }
 }

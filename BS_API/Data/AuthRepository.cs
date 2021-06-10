@@ -8,25 +8,34 @@ using BS.Dtos;
 using BS.Models;
 using Microsoft.EntityFrameworkCore;
 using BS.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace BS.Data
 {
-    public class AuthRepository:IAuthRepository
+    public class AuthRepository : IAuthRepository
     {
-        private BSContext _context;
-        public AuthRepository(BSContext context)
+        private readonly BSContext _context;
+        private readonly IConfiguration _configuration;
+
+        public AuthRepository(BSContext context, IConfiguration configuration)
         {
             _context = context;
+            _configuration = configuration;
         }
-        public async Task<ServiceResponse<int>> Register(User user, string password )
+        public async Task<ServiceResponse<int>> Register(User user, string password)
         {
             ServiceResponse<int> serviceResponse = new ServiceResponse<int>();
-            if(await UserExist(user.UserName)){
+            if (await UserExist(user.UserName))
+            {
                 serviceResponse.Success = false;
                 serviceResponse.Message = "User already exists.";
                 return serviceResponse;
             }
-            
+
             CreatePasswordHash(password, out byte[] passwordHash, out byte[] passwordSalt);
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
@@ -36,25 +45,22 @@ namespace BS.Data
             return serviceResponse;
         }
 
-        public async Task<bool> UserExist(string username )
+        public async Task<bool> UserExist(string username)
         {
-            if(await _context.User.AnyAsync(x => x.UserName.ToLower() == username.ToLower())){
-                return true;
-            }
-            return false;
+            return await _context.User.AnyAsync(x => x.UserName.ToLower().Equals(username.ToLower()));
         }
 
-        public async Task<ServiceResponse<string>> Login(string username, string password )
+        public async Task<ServiceResponse<string>> Login(string username, string password)
         {
-           ServiceResponse<string> serviceResponse = new ServiceResponse<string>();
-           User user = await _context.User.FirstOrDefaultAsync(c => c.UserName.
-                                                        ToLower().Equals(username.ToLower()) );
-            if(user==null)
+            ServiceResponse<string> serviceResponse = new ServiceResponse<string>();
+            User user = await _context.User.FirstOrDefaultAsync(c => c.UserName.
+                                                         ToLower().Equals(username.ToLower()));
+            if (user == null)
             {
                 serviceResponse.Success = false;
                 serviceResponse.Message = "User not found";
             }
-            else if(!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            else if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
             {
                 serviceResponse.Success = false;
                 serviceResponse.Message = "password incorrect.";
@@ -62,7 +68,7 @@ namespace BS.Data
             else
             {
                 serviceResponse.Success = true;
-                serviceResponse.Data = user.UserID.ToString();
+                serviceResponse.Data = CreateToken(user);
             }
             return serviceResponse;
         }
@@ -80,14 +86,42 @@ namespace BS.Data
         {
             using (var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt))
             {
-                var  computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-                for (int i =0; i < computedHash.Length;i++)
+                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                for (int i = 0; i < computedHash.Length; i++)
                 {
-                    if(computedHash[i]!=passwordHash[i])
+                    if (computedHash[i] != passwordHash[i])
                         return false;
                 }
                 return true;
             }
+        }
+
+        private string CreateToken(User user)
+        {
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+
+            SymmetricSecurityKey key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value)
+            );
+
+            SigningCredentials creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = creds
+            };
+
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return tokenHandler.WriteToken(token);
         }
     }
 }

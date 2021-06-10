@@ -15,5 +15,10 @@ namespace BS.Data
         public DbSet<Match> Match {get; set;}
         public DbSet<Country> Country {get; set;}
         public DbSet<User> User {get; set;}
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder){
+            modelBuilder.Entity<User>()
+                .Property(user => user.Role).HasDefaultValue("Player");
+        }
     }
 }

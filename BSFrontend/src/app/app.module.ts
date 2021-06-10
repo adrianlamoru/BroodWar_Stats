@@ -10,6 +10,7 @@ import { AppComponent } from './app.component';
 import { PlayerformComponent } from './components/playerform/playerform.component';
 import { RaceselectorComponent } from './components/shared/raceselector/raceselector.component';
 import { CountryselectorComponent } from './components/shared/countryselector/countryselector.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -24,7 +25,9 @@ import { CountryselectorComponent } from './components/shared/countryselector/co
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    ReactiveFormsModule,
+    FormsModule
   ],
   providers: [RaceService],
   bootstrap: [AppComponent]

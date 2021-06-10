@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { GetListRaceDto, GetRaceDto } from 'src/models/RaceInterfaces';
 import { RaceService } from '../../../services/race.service';
 
@@ -9,17 +9,21 @@ import { RaceService } from '../../../services/race.service';
 })
 export class RaceselectorComponent implements OnInit {
   _getListRacesDto: GetRaceDto[] = new Array<GetRaceDto>();
-  lista = ['1','2','3'];
+  raceID: string;
   constructor(private _raceService: RaceService) {}
-  
+
   ngOnInit(): void {
     this.ReturnRace();
   }
+  @Output() onRaceID: EventEmitter<string> = new EventEmitter();
 
   ReturnRace() {
     this._raceService.sendGetRequest().subscribe((res) => {
       this._getListRacesDto = res.data['getRacesDtos'];
-      console.log(this.lista);
     });
+  }
+
+  returnRaceID() {
+    this.onRaceID.emit(this.raceID);
   }
 }

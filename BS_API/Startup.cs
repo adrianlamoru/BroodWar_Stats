@@ -14,6 +14,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BS_API
 {
@@ -29,7 +32,6 @@ namespace BS_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
             services.AddDbContext<BSContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("DataConection")));
             services.AddAutoMapper(typeof(Startup));
             services.AddCors(options =>
@@ -39,16 +41,27 @@ namespace BS_API
                               {
                                   builder.WithOrigins("http://localhost:4200");
                               });
-             });
-            
+        });
+
             services.AddControllers();
             services.AddScoped<IPlayerService, PlayerService>();
             services.AddScoped<IRaceService, RaceService>();
             services.AddScoped<ICountryService, CountryService>();
             services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII
+                        .GetBytes(Configuration.GetSection("AppSettings:Token").Value)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -56,10 +69,18 @@ namespace BS_API
                 app.UseDeveloperExceptionPage();
             }
 
-           // app.UseHttpsRedirection();
-           app.UseCors(MyAllowSpecificOrigins);
+            // app.UseHttpsRedirection();
+            app.UseCors(
+                x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials()
+            );
 
             app.UseRouting();
+
+            app.UseAuthentication();
 
             app.UseAuthorization();
 

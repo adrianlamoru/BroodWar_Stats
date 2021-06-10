@@ -2,11 +2,12 @@ using System.Threading.Tasks;
 using BS.Dtos;
 using BS.Services;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.Authorization;
 namespace BS.Controllers
 {
+    //[Authorize(Roles = "Player")]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class PlayerController : ControllerBase
     {
         private readonly IPlayerService _playerService;
@@ -14,7 +15,6 @@ namespace BS.Controllers
         public PlayerController(IPlayerService playerService)
         {
             _playerService = playerService;
-
         }
 
         [HttpGet("GetAll")]
@@ -26,14 +26,24 @@ namespace BS.Controllers
         [HttpPost]
         public async Task<IActionResult> NewPlayer(AddPlayerDto newPlayer)
         {
-            return Ok(await _playerService.NewPlayer(newPlayer));
+            return Ok(await _playerService.NewPlayer(newPlayer).ConfigureAwait(false)); // .ConfigureAwait(false) optional just for no to show linter error
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSingle(GetPlayerByIdDto id)
+        public async Task<IActionResult> GetSingle(int id)
         {
-            return Ok( await _playerService.GetPlayerById(id));
+            return Ok(await _playerService.GetPlayerById(id));
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            ServiceResponse<GetPlayerListDto> response = await _playerService.DeletePlayer(id);
+            if (response.Data == null)
+            {
+                return NotFound(response);
+            }
+            return Ok(response);
+        }
     }
 }

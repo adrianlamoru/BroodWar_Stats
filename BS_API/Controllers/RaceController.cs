@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace BS.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class RaceController : ControllerBase
     {
         private readonly IRaceService _raceService;
@@ -14,7 +14,6 @@ namespace BS.Controllers
         public RaceController(IRaceService raceService)
         {
             _raceService = raceService;
-
         }
 
         [HttpGet("GetAll")]
@@ -22,8 +21,5 @@ namespace BS.Controllers
         {
             return Ok(await _raceService.GetAll());
         }
-
-        
-
     }
 }

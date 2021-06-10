@@ -3,7 +3,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace BS.Models
-{   
+{
     public class Match
     {
         [Key]
@@ -25,5 +25,4 @@ namespace BS.Models
         [Required]
         public decimal Duration {get; set;}
     }
-    
 }

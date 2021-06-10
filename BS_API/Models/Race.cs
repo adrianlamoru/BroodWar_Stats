@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace BS.Models
-{   
+{
     public class Race
     {
         [Key]
@@ -10,5 +10,4 @@ namespace BS.Models
         [MaxLength(10)]
         public string Name {get; set;}
     }
-    
 }

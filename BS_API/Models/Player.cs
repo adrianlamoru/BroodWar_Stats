@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace BS.Models
-{   
+{
     public class Player
     {
         [Key]
@@ -20,6 +20,7 @@ namespace BS.Models
         [Required]
         [MaxLength(20)]
         public Country Country {get; set;}
-    }
-    
+        [Required]
+        public int Age {get; set;}
+   }
 }
