@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using BS.API.Helpers;
 using BS.Data;
 using BS.Dtos;
 using BS.Models;
@@ -21,13 +22,16 @@ namespace BS.Services
             _context = context;
         }
 
-        public async Task<ServiceResponse<GetPlayerListDto>> GetAllPlayers()
+        public async Task<ServiceResponse<GetPlayerListDto>> GetAllPlayers(PlayerParams param)
         {
             ServiceResponse<GetPlayerListDto> serviceResponse = new ServiceResponse<GetPlayerListDto>();
             try
             {
                 List<Player> playerList = await _context.Player.Include(c => c.Country)
                                                                .Include(c => c.Race)
+                                                               .OrderBy(c => c.NickName)
+                                                               .Skip((param.PageNumber - 1) * param.PageSize)
+                                                               .Take(param.PageSize)
                                                                .ToListAsync();
                 GetPlayerListDto getPlayerListDto = new GetPlayerListDto();
                 List<GetPlayerDto> getPlayerDtoList = new List<GetPlayerDto>();
@@ -119,7 +123,7 @@ namespace BS.Services
             {
                 Player player = await _context.Player.FirstOrDefaultAsync(c => c.PlayerID == updatePlayer.PlayerID);
                 player.Country = await _context.Country.FirstOrDefaultAsync(c => c.CountryID == updatePlayer.CountryID);
-                player.Race = await _context.Race.FirstOrDefaultAsync(c => c.RaceID == updatePlayer.RaceID.ToString());
+                player.Race = await _context.Race.FirstOrDefaultAsync(c => c.RaceID == updatePlayer.RaceID);
                 player.Name = updatePlayer.Name;
                 player.NickName = updatePlayer.NickName;
                 player.Age = updatePlayer.Age;
@@ -127,8 +131,7 @@ namespace BS.Services
 
                 _context.Player.Update(player);
                 await _context.SaveChangesAsync();
-                serviceResponse.Data = _mapper.Map<GetPlayerDto>(updatePlayer);
-                
+                serviceResponse.Data = _mapper.Map<GetPlayerDto>(player);
             }
             catch (Exception ex)
             {
@@ -148,7 +151,7 @@ namespace BS.Services
 
                 _context.Player.Remove(player);
                 await _context.SaveChangesAsync();
-                serviceResponse = this.GetAllPlayers().Result;
+               // serviceResponse = this.GetAllPlayers().Result;
             }
             catch (Exception ex)
             {

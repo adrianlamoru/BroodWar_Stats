@@ -10,7 +10,7 @@ namespace BS.Profiles
         {
             CreateMap<Player, GetPlayerDto>();
             CreateMap<AddPlayerDto, Player>();
-            CreateMap<GetPlayerDto, UpdatePlayerDto>();
+            CreateMap<GetPlayerDto, Player>();
         }
     }
 }

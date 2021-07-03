@@ -11,6 +11,8 @@ import { PlayerformComponent } from './components/playerform/playerform.componen
 import { RaceselectorComponent } from './components/shared/raceselector/raceselector.component';
 import { CountryselectorComponent } from './components/shared/countryselector/countryselector.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NavbarComponent } from './components/shared/navbar/navbar.component';
+import { LoginComponent } from './components/login/login.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +22,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     
     RaceselectorComponent,
     
-    CountryselectorComponent
+    CountryselectorComponent,
+    
+    NavbarComponent,
+    
+    LoginComponent
   ],
   imports: [
     BrowserModule,

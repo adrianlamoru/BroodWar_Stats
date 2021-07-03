@@ -3,6 +3,8 @@ using BS.Dtos;
 using BS.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using BS.API.Helpers;
+
 namespace BS.Controllers
 {
     //[Authorize(Roles = "Player")]
@@ -18,9 +20,9 @@ namespace BS.Controllers
         }
 
         [HttpGet("GetAll")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery]PlayerParams param)
         {
-            return Ok(await _playerService.GetAllPlayers());
+            return Ok(await _playerService.GetAllPlayers(param));
         }
 
         [HttpPost]
@@ -44,6 +46,12 @@ namespace BS.Controllers
                 return NotFound(response);
             }
             return Ok(response);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdatePLayer(UpdatePlayerDto id)
+        {
+            return Ok(await _playerService.UpdatePlayer(id));
         }
     }
 }

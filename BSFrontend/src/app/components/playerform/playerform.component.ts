@@ -22,20 +22,19 @@ export class PlayerformComponent implements OnInit {
   newPlayer: NewPlayerDto;
   _players: GetPlayerDto[] = new Array<GetPlayerDto>();
   _actualPlayerId: number = 0;
-  
 
   constructor(private fb: FormBuilder, private playerService: PlayerService) {}
 
   ngOnInit(): void {
-    this.playerForm.reset({
+    /* this.playerForm.reset({
       NickName: '',
       Name: '',
       LastName: '',
       RaceID: '',
       CountryID: 0,
       Age: 0,
-      PlayerID:0,
-    });
+      PlayerID: 0,
+    });*/
     this.GetAll();
   }
 
@@ -46,10 +45,27 @@ export class PlayerformComponent implements OnInit {
     }
     this.newPlayer = this.playerForm.value;
     this.newPlayer.CountryID = +this.playerForm.value.CountryID;
-    this.playerService.newPlayerRequest(this.newPlayer).subscribe((_) => {
-      this.GetAll();
+
+    if (this.newPlayer.PlayerID === 0) {
+      this.playerService.newPlayerRequest(this.newPlayer).subscribe((_) => {
+        this.GetAll();
+      });
+    } else {
+      this.playerService
+        .updatePlayer(this.newPlayer.PlayerID, this.newPlayer)
+        .subscribe((_) => {
+          this.GetAll();
+        });
+    }
+    this.playerForm.reset({
+      NickName: '',
+      Name: '',
+      LastName: '',
+      RaceID: '',
+      CountryID: 0,
+      Age: 0,
+      PlayerID: 0,
     });
-    this.playerForm.reset();
   }
 
   GetAll() {

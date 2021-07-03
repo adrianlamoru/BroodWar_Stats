@@ -5,6 +5,7 @@ export interface NewPlayerDto {
   LastName: string;
   CountryID: number;
   Age: number;
+  PlayerID: number;
 }
 
 export interface GetPlayerListDto {
